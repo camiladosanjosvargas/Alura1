@@ -3,7 +3,7 @@
 
 (def data n.u/data)
 
-(def compra-1 {:id (java.util.UUID/randomUUID)
+(def compra-1 {:id      1
                :cliente 1,
                :cartao  10,
                :itens   {:data            (data 2020 10 02),
@@ -11,7 +11,7 @@
                          :estabelecimento "Escola",
                          :categoria       "Educação"}})
 
-(def compra-2 {:id (java.util.UUID/randomUUID)
+(def compra-2 {:id      2
                :cliente 1,
                :cartao  10,
                :itens   {:data            (data 2020 10 05),
@@ -19,7 +19,7 @@
                          :estabelecimento "Escola",
                          :categoria       "Educação"}})
 
-(def compra-3 {:id (java.util.UUID/randomUUID)
+(def compra-3 {:id      3
                :cliente 1,
                :cartao  10,
                :itens   {:data            (data 2020 10 10),
@@ -27,7 +27,7 @@
                          :estabelecimento "Farmacia",
                          :categoria       "Saúde"}})
 
-(def compra-4 {:id (java.util.UUID/randomUUID)
+(def compra-4 {:id      4
                :cliente 2,
                :cartao  20,
                :itens   {:data            (data 2020 11 02),
@@ -35,7 +35,7 @@
                          :estabelecimento "Escola",
                          :categoria       "Educação"}})
 
-(def compra-5 {:id (java.util.UUID/randomUUID)
+(def compra-5 {:id      5
                :cliente 2,
                :cartao  20,
                :itens   {:data            (data 2020 11 30),
@@ -43,7 +43,7 @@
                          :estabelecimento "Escola",
                          :categoria       "Educação"}})
 
-(def compra-6 {:id (java.util.UUID/randomUUID)
+(def compra-6 {:id      6
                :cliente 2,
                :cartao  20,
                :itens   {:data            (data 2020 12 02),
@@ -51,7 +51,7 @@
                          :estabelecimento "Escola",
                          :categoria       "Educação"}})
 
-(def compra-7 {:id (java.util.UUID/randomUUID)
+(def compra-7 {:id      6
                :cliente 3,
                :cartao  30,
                :itens   {:data            (data 2020 12 02),
@@ -59,7 +59,7 @@
                          :estabelecimento "Salao",
                          :categoria       "Beleza"}})
 
-(def compra-8 {:id (java.util.UUID/randomUUID)
+(def compra-8 {:id      7
                :cliente 3,
                :cartao  30,
                :itens   {:data            (data 2020 12 31),
@@ -67,7 +67,7 @@
                          :estabelecimento "Escola",
                          :categoria       "Educação"}})
 
-(def compra-9 {:id (java.util.UUID/randomUUID)
+(def compra-9 {:id      8
                :cliente 4,
                :cartao  40,
                :itens   {:data            (data 2020 12 31),
