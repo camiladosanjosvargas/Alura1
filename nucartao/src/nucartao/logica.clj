@@ -21,7 +21,7 @@
 
 (defn todas-as-compras
   [elementos]
-  (map :itens elementos))
+  (map :detalhes elementos))
 
 (defn todas-as-compras-realizadas-por-cliente
   [cliente compras]
