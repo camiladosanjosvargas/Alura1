@@ -1,16 +1,17 @@
 (ns nucartao.logica
   (:use [clojure pprint])
-  (:require [nucartao.comprasdb :as n.cdb]
-            [nucartao.util :as n.u]
-            [nucartao.dadosdb :as n.ddb]))
+  (:require [nucartao.util :as n.u]
+            [nucartao.db :as n.db]))
 
-(def valor-com-duas-casas-decimais n.u/valor-com-duas-casas-decimais)
+(def formata-com-duas-casas-decimais n.u/formata-com-duas-casas-decimais)
 (def obtem-mes n.u/obtem-mes)
 (def obtem-ano n.u/obtem-ano)
+(def todas-as-compras n.db/todas-as-compras)
+(def cartoes n.db/cartoes)
 
 (defn total-dos-gastos
   [elementos]
-  (valor-com-duas-casas-decimais (reduce + (map :valor elementos))))
+  (formata-com-duas-casas-decimais (reduce + (map :valor elementos))))
 
 (defn todos-os-gastos
   [[chave valor]]
@@ -22,29 +23,42 @@
        (group-by :categoria)
        (map todos-os-gastos)))
 
-(defn todas-as-compras
+(defn detalhes-de-compras
   [elementos]
   (map :detalhes elementos))
 
-(defn todas-as-compras-realizadas-por-cliente
-  [cliente compras]
-  {:cliente                       cliente
-   :quantidade-total-de-compras   (count compras)
-   :total-de-gastos               (total-dos-gastos (todas-as-compras compras))
-   :total-de-gastos-por-categoria (todas-as-compras-por-categoria (todas-as-compras compras))
-   :compras-realizadas            (todas-as-compras compras)})
+(defn cartao-do-cliente?
+  [filtro]
+  (fn [cartao] (= (get cartao :cartao 0) filtro)))
+
+(defn obtem-cliente
+  [cartao]
+  (->> (cartoes)
+       (filter (cartao-do-cliente? cartao))))
+
+(defn localiza-cliente
+  [cartao]
+  (map :cliente (obtem-cliente cartao)))
+
+(defn todas-as-compras-realizadas
+  [cartao compras]
+  (let [detalhes (detalhes-de-compras compras)]
+    {:cliente                       (localiza-cliente cartao)
+     :quantidade-total-de-compras   (count compras)
+     :total-de-gastos               (total-dos-gastos detalhes)
+     :total-de-gastos-por-categoria (todas-as-compras-por-categoria detalhes)
+     :compras-realizadas            detalhes}))
 
 (defn existe-compra?
-  [cliente cartao]
-  (fn [compra] (and (= (get compra :cliente 0) cliente)
-                    (= (get compra :cartao 0) cartao))))
+  [cartao]
+  (fn [compra] (= (get compra :cartao 0) cartao)))
 
-(defn detalhar-compras-do-cliente-e-cartao
-  "Detalhar as compras do cliente no cartão indicado"
-  [cliente cartao]
-  (->> (n.cdb/todas-as-compras)
-       (filter (existe-compra? cliente cartao))
-       (todas-as-compras-realizadas-por-cliente cliente)))
+(defn detalhar-compras-do-cartao
+  "Detalhar as compras do cartão"
+  [cartao]
+  (->> (todas-as-compras)
+       (filter (existe-compra? cartao))
+       (todas-as-compras-realizadas cartao)))
 
 (defn compra-estah-no-mes-ano-de-referencia?
   [mes ano]
@@ -54,33 +68,34 @@
 (defn todas-as-compras-no-mes-ano-de-referencia
   [mes ano compras]
   (->> compras
-       (todas-as-compras)
+       (detalhes-de-compras)
        (filter (compra-estah-no-mes-ano-de-referencia? mes ano))))
 
 (defn detalhar-faturas-por-mes
-  [cliente mes ano compras]
-  {:cliente            cliente
-   :mes-de-referencia  mes
-   :ano-de-referencia  ano
-   :total-da-fatura    (total-dos-gastos (todas-as-compras-no-mes-ano-de-referencia mes ano compras))
-   :compras-realizadas (todas-as-compras-no-mes-ano-de-referencia mes ano compras)})
+  [cartao mes ano compras]
+  (let [compras-mes-ano-referencia (todas-as-compras-no-mes-ano-de-referencia mes ano compras)]
+    {:cliente            (localiza-cliente cartao)
+     :mes-de-referencia  mes
+     :ano-de-referencia  ano
+     :total-da-fatura    (total-dos-gastos compras-mes-ano-referencia)
+     :compras-realizadas compras-mes-ano-referencia}))
 
-(defn detalhar-fatura-do-cliente-e-cartao-por-mes-e-ano
-  "Detalhar fatura do cliente no cartão e mês de referência indicado"
-  [cliente cartao mes ano]
-  (->> (n.cdb/todas-as-compras)
-       (filter (existe-compra? cliente cartao))
-       (detalhar-faturas-por-mes cliente mes ano)))
+(defn detalhar-fatura-do-cartao-por-mes-e-ano
+  "Detalhar fatura do cartão no mês e ano de referência"
+  [cartao mes ano]
+  (->> (todas-as-compras)
+       (filter (existe-compra? cartao))
+       (detalhar-faturas-por-mes cartao mes ano)))
 
-(defn compra-realizada-maior-do-que-valor-especificado?
+(defn compra-realizada-maior-ou-igual-ao-valor-especificado?
   [filtro]
   (fn [compra] (>= (get compra :valor 0) filtro)))
 
 (defn detalhar-todas-as-compras-por-valor
   [filtro compras]
   (->> compras
-       (todas-as-compras)
-       (filter (compra-realizada-maior-do-que-valor-especificado? filtro))))
+       (detalhes-de-compras)
+       (filter (compra-realizada-maior-ou-igual-ao-valor-especificado? filtro))))
 
 (defn compra-realizada-no-estabelecimento-especificado?
   [filtro]
@@ -89,29 +104,29 @@
 (defn detalhar-todas-as-compras-por-estabelecimento
   [filtro compras]
   (->> compras
-       (todas-as-compras)
+       (detalhes-de-compras)
        (filter (compra-realizada-no-estabelecimento-especificado? filtro))))
 
 (defn todas-compras-por-filtro
-  [cliente filtro compras]
-  {:cliente cliente
+  [cartao filtro compras]
+  {:cliente (localiza-cliente cartao)
    :filtro filtro
    :detalhar (if (string? filtro)
                (detalhar-todas-as-compras-por-estabelecimento filtro compras)
                (detalhar-todas-as-compras-por-valor filtro compras))})
 
 (defn busca-compras-por-filtro
-  [cliente cartao filtro]
-  (->> (n.cdb/todas-as-compras)
-       (filter (existe-compra? cliente cartao))
-       (todas-compras-por-filtro cliente filtro)))
+  [cartao filtro]
+  (->> (todas-as-compras)
+       (filter (existe-compra? cartao))
+       (todas-compras-por-filtro cartao filtro)))
 
 (defn busca-de-compras-valor-ou-estabelecimento
   "Encontrar as compras realizadas por filtro de estabelecimento ou valor (maior ou igual)"
-  [cliente cartao filtro]
+  [cartao filtro]
   (cond (or (string? filtro)
             (and (number? filtro)
-                 (pos? filtro))) (busca-compras-por-filtro cliente cartao filtro)
+                 (pos? filtro))) (busca-compras-por-filtro cartao filtro)
         :else "Filtro de busca inválido"))
 
 

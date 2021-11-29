@@ -13,16 +13,10 @@
   [data]
   (t/as data :month-of-year))
 
-
 (defn obtem-ano
   [data]
   (t/as data :year))
 
-(defn valor-com-duas-casas-decimais
+(defn formata-com-duas-casas-decimais
   [valor]
   (clojure.core/format "R$ %.2f" (float valor)))
-
-
-
-(println (obtem-ano (data 2021 12 02)))
-
