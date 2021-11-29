@@ -3,41 +3,16 @@
 
 (def data n.u/data)
 
-(def dados-cadastrais-cliente-1 {:cliente 1 {:nome  "Maria",
-                                             :cpf   "2343545645",
-                                             :Email "ex@gmail.com.br"},
-                                          :cartao 10 {:numero   "908976",
-                                                      :CVV      989,
-                                                      :validade (data 2021 01 10),
-                                                      :limite   100}})
+(defn clientes []
+  [{:cliente 1, :nome "Maria", :cpf "11111111111", :Email "maria@gmail.com.br"},
+   {:cliente 2, :nome "José", :cpf "22222222222", :Email "jose@gmail.com.br"},
+   {:cliente 3, :nome "Paulo", :cpf "33333333333", :Email "paulo@gmail.com.br"},
+   {:cliente 4, :nome "Carla", :cpf "44444444444", :Email "carla@gmail.com.br"}])
 
-(def dados-cadastrais-cliente-2 {:cliente 2 {:nome  "José",
-                                             :cpf   "2343545645",
-                                             :Email "ex@gmail.com.br"},
-                                          :cartao 20 {:numero   "908976",
-                                                      :CVV      989,
-                                                      :validade (data 2021 01 10),
-                                                      :limite   200}})
-
-(def dados-cadastrais-cliente-3 {:cliente 3 {:nome  "Paulo",
-                                             :cpf   "2343545645",
-                                             :Email "ex@gmail.com.br"},
-                                          :cartao 30 {:numero   "908976",
-                                                      :CVV      989,
-                                                      :validade (data 2021 01 10),
-                                                      :limite   300}})
-
-(def dados-cadastrais-cliente-4 {:cliente 4 {:nome  "Carla",
-                                             :cpf   "2343545645",
-                                             :Email "ex@gmail.com.br"},
-                                          :cartao 40 {:numero   "908976",
-                                                      :CVV      989,
-                                                      :validade (data 2021 01 10),
-                                                      :limite   400}})
-
-
-
-(defn dados-cadastrais []
-  [dados-cadastrais-cliente-1, dados-cadastrais-cliente-2, dados-cadastrais-cliente-3, dados-cadastrais-cliente-4])
-
+(defn cartoes []
+  [{:cartao 10, :cliente 1 :numero "908976", :CVV 989, :validade (data 2021 01 10), :limite 100},
+   {:cartao 50, :cliente 1 :numero "7646378", :CVV 546, :validade (data 2022 01 10), :limite 500},
+   {:cartao 20, :cliente 2 :numero "4563575", :CVV 764, :validade (data 2021 01 10), :limite 200},
+   {:cartao 30, :cliente 3 :numero "753567", :CVV 643, :validade (data 2021 01 10), :limite 300},
+   {:cartao 40, :cliente 4 :numero "845354", :CVV 123, :validade (data 2021 01 10), :limite 400}])
 
