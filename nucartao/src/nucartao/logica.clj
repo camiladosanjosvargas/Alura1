@@ -1,13 +1,19 @@
 (ns nucartao.logica
   (:use [clojure pprint])
   (:require [nucartao.util :as n.u]
-            [nucartao.db :as n.db]))
+            [nucartao.db :as n.db]
+            [schema.core :as s]))
 
 (def todas-as-compras n.db/todas-as-compras)
 (def formata-com-duas-casas-decimais n.u/formata-com-duas-casas-decimais)
 (def obtem-mes n.u/obtem-mes)
 (def obtem-ano n.u/obtem-ano)
 (def cartoes n.db/cartoes)
+(s/set-fn-validation! true)
+
+(s/defn valida-nova-compra
+  [cartao :- Number, valor :- Number, estabelecimento :- s/Str, categoria :- s/Str]
+  {:cartao cartao, :detalhes {:valor valor, :estabelecimento estabelecimento, :categoria categoria}})
 
 (defn gera-id
   []
@@ -21,8 +27,9 @@
   [compra]
   (conj (todas-as-compras) (adiciona-id-data compra)))
 
-;chamada para adicionar uma nova compra
-(pprint (adiciona-compra {:cartao 10, :detalhes {:valor 180, :estabelecimento "EscolaABC", :categoria "Educação"}}))
+;chamada para adicionar uma nova compra validando os parametros de entrada
+(pprint (adiciona-compra (valida-nova-compra 10 180 "EscolaABC" "Educação")))
+
 
 (defn total-dos-gastos
   [elementos]
@@ -63,6 +70,13 @@
      :total-de-gastos               (total-dos-gastos detalhes)
      :total-de-gastos-por-categoria (todas-as-compras-por-categoria detalhes)
      :compras-realizadas            detalhes}))
+
+
+
+
+
+
+
 
 (defn existe-compra?
   [cartao]
