@@ -10,30 +10,32 @@
 (def obtem-ano n.u/obtem-ano)
 (def cartoes n.db/cartoes)
 (s/set-fn-validation! true)
-(def PosInt (s/pred pos-int?))
+
+(def PosInt (s/pred pos-int? 'inteiro-positivo))
+(defn maior-ou-igual-a-zero? [x] (>= x 0))
+(def ValorFinanceiro (s/constrained s/Num maior-ou-igual-a-zero?))
+
+(def Detalhes {:valor ValorFinanceiro, :estabelecimento s/Str, :categoria s/Str})
+(def CompraDetalhada {:cartao PosInt :detalhes Detalhes})
 
 
-(def Compra
-  {:cartao PosInt, :detalhes {:valor PosInt, :estabelecimento s/Str, :categoria s/Str}})
-
-(defn gera-id
-  []
+(defn gera-id []
   (get (into [] (map inc (into [] (map :id (into [] (take-last 1 (todas-as-compras))))))) 0))
 
 (defn adiciona-id-data
   [compra]
   (assoc-in (assoc compra :id (gera-id)) [:detalhes :data] (n.u/data)))
 
-(s/defn adiciona-compra
-  [compra]
-  (conj
-    (todas-as-compras)
-    (adiciona-id-data compra)))
+(s/defn detalhes-da-compra
+  [valor :- ValorFinanceiro, estabelecimento :- s/Str, categoria :- s/Str]
+  {:valor valor, :estabelecimento estabelecimento, :categoria categoria})
+
+(s/defn nova-compra-detalhada
+  [cartao :- PosInt, detalhes :- Detalhes]
+  (conj (todas-as-compras) (adiciona-id-data {:cartao cartao, :detalhes detalhes})) )
 
 ;chamada para adicionar uma nova compra validando os parametros de entrada
-(pprint (adiciona-compra (s/validate Compra {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}})))
-
-
+(pprint (nova-compra-detalhada 10 (detalhes-da-compra 180 "FarmaciaABC" "Saude")))
 
 
 
