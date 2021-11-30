@@ -11,10 +11,6 @@
 (def cartoes n.db/cartoes)
 (s/set-fn-validation! true)
 
-(s/defn valida-nova-compra
-  [cartao :- Number, valor :- Number, estabelecimento :- s/Str, categoria :- s/Str]
-  {:cartao cartao, :detalhes {:valor valor, :estabelecimento estabelecimento, :categoria categoria}})
-
 (defn gera-id
   []
   (get (into [] (map inc (into [] (map :id (into [] (take-last 1 (todas-as-compras))))))) 0))
@@ -23,12 +19,14 @@
   [compra]
   (assoc-in (assoc compra :id (gera-id)) [:detalhes :data] (n.u/data)))
 
-(defn adiciona-compra
-  [compra]
-  (conj (todas-as-compras) (adiciona-id-data compra)))
+(s/defn adiciona-compra
+  [cartao :- Number, valor :- Number, estabelecimento :- s/Str, categoria :- s/Str]
+  (conj
+    (todas-as-compras)
+    (adiciona-id-data {:cartao cartao, :detalhes {:valor valor, :estabelecimento estabelecimento, :categoria categoria}})))
 
 ;chamada para adicionar uma nova compra validando os parametros de entrada
-(pprint (adiciona-compra (valida-nova-compra 10 180 "EscolaABC" "Educação")))
+(pprint (adiciona-compra 10 180 "EscolaABC" "Educação"))
 
 
 (defn total-dos-gastos
