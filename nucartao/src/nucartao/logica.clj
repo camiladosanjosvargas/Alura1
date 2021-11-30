@@ -30,7 +30,10 @@
     (adiciona-id-data compra)))
 
 ;chamada para adicionar uma nova compra validando os parametros de entrada
-(pprint (adiciona-compra (s/validate Compra {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}})))
+;(pprint (adiciona-compra (s/validate Compra {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}})))
+
+
+
 
 
 (defn total-dos-gastos
@@ -41,6 +44,7 @@
   [[chave valor]]
   {chave (total-dos-gastos valor)})
 
+
 (defn todas-as-compras-por-categoria
   [elementos]
   (->> elementos
@@ -50,6 +54,9 @@
 (defn detalhes-de-compras
   [elementos]
   (map :detalhes elementos))
+
+
+
 
 (defn cartao-do-cliente?
   [filtro]
@@ -73,13 +80,6 @@
      :total-de-gastos-por-categoria (todas-as-compras-por-categoria detalhes)
      :compras-realizadas            detalhes}))
 
-
-
-
-
-
-
-
 (defn existe-compra?
   [cartao]
   (fn [compra] (= (get compra :cartao 0) cartao)))
@@ -90,6 +90,7 @@
   (->> (todas-as-compras)
        (filter (existe-compra? cartao))
        (todas-as-compras-realizadas cartao)))
+
 
 (defn compra-estah-no-mes-ano-de-referencia?
   [mes ano]
@@ -152,13 +153,20 @@
        (filter (existe-compra? cartao))
        (todas-compras-por-filtro cartao filtro)))
 
+(defn numero-positivo? [valor]
+  (and (number? valor) (pos? valor)))
+
+(def Cartao s/Num)
+;(def Filtro (s/if string? s/Str s/Num))
+(def Filtro (s/if numero-positivo? s/Num s/Str))
+
 (defn busca-de-compras-valor-ou-estabelecimento
   "Encontrar as compras realizadas por filtro de estabelecimento ou valor (maior ou igual)"
   [cartao filtro]
-  (cond (or (string? filtro)
-            (and (number? filtro)
-                 (pos? filtro))) (busca-compras-por-filtro cartao filtro)
-        :else "Filtro de busca inválido"))
+  (let [cartao-validado (s/validate Cartao cartao)
+        filtro-validado (s/validate Filtro filtro)]
+    (busca-compras-por-filtro cartao-validado filtro-validado)))
+
 
 
 
