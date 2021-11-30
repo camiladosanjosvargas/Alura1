@@ -153,12 +153,8 @@
        (filter (existe-compra? cartao))
        (todas-compras-por-filtro cartao filtro)))
 
-(defn numero-positivo? [valor]
-  (and (number? valor) (pos? valor)))
-
 (def Cartao s/Num)
-;(def Filtro (s/if string? s/Str s/Num))
-(def Filtro (s/if numero-positivo? s/Num s/Str))
+(def Filtro (s/if pos-int? s/Num s/Str))
 
 (defn busca-de-compras-valor-ou-estabelecimento
   "Encontrar as compras realizadas por filtro de estabelecimento ou valor (maior ou igual)"
