@@ -2,7 +2,7 @@
   (:use [clojure pprint])
   (:require [nucartao.logica :as n.l]))
 
-(println "Detalhar compras realizadas")
+(println "\n\n\nDetalhar compras realizadas")
 (pprint (n.l/detalhar-compras-do-cartao 10))
 
 (println "\n\n\nDetalhar fatura do cartao")

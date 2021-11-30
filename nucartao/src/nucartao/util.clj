@@ -2,8 +2,10 @@
   (:require [java-time :as t]))
 
 (defn data
-  [ano mes dia]
-  (t/local-date ano mes dia))
+  ([ano mes dia]
+   (t/local-date ano mes dia))
+  ([]
+   (t/local-date)))
 
 (defn formata-data
   [data]

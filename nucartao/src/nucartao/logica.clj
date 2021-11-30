@@ -3,11 +3,26 @@
   (:require [nucartao.util :as n.u]
             [nucartao.db :as n.db]))
 
+(def todas-as-compras n.db/todas-as-compras)
 (def formata-com-duas-casas-decimais n.u/formata-com-duas-casas-decimais)
 (def obtem-mes n.u/obtem-mes)
 (def obtem-ano n.u/obtem-ano)
-(def todas-as-compras n.db/todas-as-compras)
 (def cartoes n.db/cartoes)
+
+(defn gera-id
+  []
+  (get (into [] (map inc (into [] (map :id (into [] (take-last 1 (todas-as-compras))))))) 0))
+
+(defn adiciona-id-data
+  [compra]
+  (assoc-in (assoc compra :id (gera-id)) [:detalhes :data] (n.u/data)))
+
+(defn adiciona-compra
+  [compra]
+  (conj (todas-as-compras) (adiciona-id-data compra)))
+
+;chamada para adicionar uma nova compra
+(pprint (adiciona-compra {:cartao 10, :detalhes {:valor 180, :estabelecimento "EscolaABC", :categoria "Educação"}}))
 
 (defn total-dos-gastos
   [elementos]
@@ -109,8 +124,8 @@
 
 (defn todas-compras-por-filtro
   [cartao filtro compras]
-  {:cliente (localiza-cliente cartao)
-   :filtro filtro
+  {:cliente  (localiza-cliente cartao)
+   :filtro   filtro
    :detalhar (if (string? filtro)
                (detalhar-todas-as-compras-por-estabelecimento filtro compras)
                (detalhar-todas-as-compras-por-valor filtro compras))})
