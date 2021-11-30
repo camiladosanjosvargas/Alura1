@@ -10,10 +10,11 @@
 (def obtem-ano n.u/obtem-ano)
 (def cartoes n.db/cartoes)
 (s/set-fn-validation! true)
+(def PosInt (s/pred pos-int?))
 
 
 (def Compra
-  {:cartao s/Num, :detalhes {:valor s/Num, :estabelecimento s/Str, :categoria s/Str}})
+  {:cartao PosInt, :detalhes {:valor PosInt, :estabelecimento s/Str, :categoria s/Str}})
 
 (defn gera-id
   []
@@ -30,7 +31,7 @@
     (adiciona-id-data compra)))
 
 ;chamada para adicionar uma nova compra validando os parametros de entrada
-;(pprint (adiciona-compra (s/validate Compra {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}})))
+(pprint (adiciona-compra (s/validate Compra {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}})))
 
 
 
