@@ -25,7 +25,7 @@
   [compra]
   (assoc-in (assoc compra :id (gera-id)) [:detalhes :data] (n.u/data)))
 
-(s/defn nova-compra-detalhada
+(s/defn nova-compra-detalhada :- [CompraDetalhada]
   [compra :- CompraDetalhada]
   (conj (todas-as-compras) (adiciona-id-data compra)))
 
