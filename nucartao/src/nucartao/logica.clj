@@ -15,9 +15,8 @@
 (defn maior-ou-igual-a-zero? [x] (>= x 0))
 (def ValorFinanceiro (s/constrained s/Num maior-ou-igual-a-zero?))
 
-(def Detalhes {:valor ValorFinanceiro, :estabelecimento s/Str, :categoria s/Str})
-(def CompraDetalhada {:cartao PosInt :detalhes Detalhes})
-
+(def Detalhes {(s/optional-key :data) s/Any :valor ValorFinanceiro, :estabelecimento s/Str, :categoria s/Str})
+(def CompraDetalhada {(s/optional-key :id) PosInt, :cartao PosInt :detalhes Detalhes})
 
 (defn gera-id []
   (get (into [] (map inc (into [] (map :id (into [] (take-last 1 (todas-as-compras))))))) 0))
@@ -26,16 +25,12 @@
   [compra]
   (assoc-in (assoc compra :id (gera-id)) [:detalhes :data] (n.u/data)))
 
-(s/defn detalhes-da-compra
-  [valor :- ValorFinanceiro, estabelecimento :- s/Str, categoria :- s/Str]
-  {:valor valor, :estabelecimento estabelecimento, :categoria categoria})
-
 (s/defn nova-compra-detalhada
-  [cartao :- PosInt, detalhes :- Detalhes]
-  (conj (todas-as-compras) (adiciona-id-data {:cartao cartao, :detalhes detalhes})) )
+  [compra :- CompraDetalhada]
+  (conj (todas-as-compras) (adiciona-id-data compra)))
 
 ;chamada para adicionar uma nova compra validando os parametros de entrada
-(pprint (nova-compra-detalhada 10 (detalhes-da-compra 180 "FarmaciaABC" "Saude")))
+(pprint (nova-compra-detalhada {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}}))
 
 
 
@@ -47,7 +42,6 @@
   [[chave valor]]
   {chave (total-dos-gastos valor)})
 
-
 (defn todas-as-compras-por-categoria
   [elementos]
   (->> elementos
@@ -57,9 +51,6 @@
 (defn detalhes-de-compras
   [elementos]
   (map :detalhes elementos))
-
-
-
 
 (defn cartao-do-cliente?
   [filtro]
@@ -159,12 +150,10 @@
 (def Cartao s/Num)
 (def Filtro (s/if pos-int? s/Num s/Str))
 
-(defn busca-de-compras-valor-ou-estabelecimento
+(s/defn busca-de-compras-valor-ou-estabelecimento
   "Encontrar as compras realizadas por filtro de estabelecimento ou valor (maior ou igual)"
-  [cartao filtro]
-  (let [cartao-validado (s/validate Cartao cartao)
-        filtro-validado (s/validate Filtro filtro)]
-    (busca-compras-por-filtro cartao-validado filtro-validado)))
+  [cartao :- Cartao, filtro :- Filtro]
+  (busca-compras-por-filtro cartao filtro))
 
 
 
