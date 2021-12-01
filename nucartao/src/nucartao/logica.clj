@@ -15,8 +15,12 @@
 (defn maior-ou-igual-a-zero? [x] (>= x 0))
 (def ValorFinanceiro (s/constrained s/Num maior-ou-igual-a-zero?))
 
-(def Detalhes {(s/optional-key :data) s/Any :valor ValorFinanceiro, :estabelecimento s/Str, :categoria s/Str})
+(def Detalhes {(s/optional-key :data) s/Any, :valor ValorFinanceiro, :estabelecimento s/Str, :categoria s/Str})
 (def CompraDetalhada {(s/optional-key :id) PosInt, :cartao PosInt :detalhes Detalhes})
+
+(def ComprasRealizadas [{:data s/Any, :valor ValorFinanceiro, :estabelecimento s/Str, :categoria s/Str}])
+(def TotalGastosPorCategoria {s/Str s/Str})
+(def RelatorioDeCompra {:cliente PosInt :quantidade-total-de-compras PosInt, :total-de-gastos s/Str, :total-de-gastos-por-categoria [TotalGastosPorCategoria], :compras-realizadas ComprasRealizadas})
 
 (defn gera-id []
   (get (into [] (map inc (into [] (map :id (into [] (take-last 1 (todas-as-compras))))))) 0))
@@ -32,62 +36,65 @@
 ;chamada para adicionar uma nova compra validando os parametros de entrada
 (pprint (nova-compra-detalhada {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}}))
 
-
-
 (defn total-dos-gastos
   [elementos]
   (formata-com-duas-casas-decimais (reduce + (map :valor elementos))))
 
-(defn todos-os-gastos
+(s/defn todos-os-gastos :- TotalGastosPorCategoria
   [[chave valor]]
   {chave (total-dos-gastos valor)})
 
-(defn todas-as-compras-por-categoria
-  [elementos]
-  (->> elementos
-       (group-by :categoria)
-       (map todos-os-gastos)))
+(s/defn todas-as-compras-por-categoria :- [TotalGastosPorCategoria]
+  [elementos :- [Detalhes]]
+  (into [] (map todos-os-gastos (group-by :categoria elementos))))
 
-(defn detalhes-de-compras
-  [elementos]
+(s/defn detalhes-de-compras :- [Detalhes]
+  [elementos :- [CompraDetalhada]]
   (map :detalhes elementos))
 
-(defn cartao-do-cliente?
-  [filtro]
+(s/defn cartao-do-cliente?
+  [filtro :- PosInt]
   (fn [cartao] (= (get cartao :cartao 0) filtro)))
 
-(defn obtem-cliente
-  [cartao]
+(s/defn obtem-cliente
+  [cartao :- PosInt]
   (->> (cartoes)
        (filter (cartao-do-cliente? cartao))))
 
-(defn localiza-cliente
-  [cartao]
+(s/defn localiza-cliente
+  [cartao :- PosInt]
   (map :cliente (obtem-cliente cartao)))
 
-(defn todas-as-compras-realizadas
-  [cartao compras]
+(s/defn todas-as-compras-realizadas
+  [cartao :- PosInt compras :- [CompraDetalhada]]
   (let [detalhes (detalhes-de-compras compras)]
-    {:cliente                       (localiza-cliente cartao)
+    {:cliente                       (get (into [] (localiza-cliente cartao)) 0)
      :quantidade-total-de-compras   (count compras)
      :total-de-gastos               (total-dos-gastos detalhes)
      :total-de-gastos-por-categoria (todas-as-compras-por-categoria detalhes)
      :compras-realizadas            detalhes}))
 
-(defn existe-compra?
-  [cartao]
+(s/defn existe-compra?
+  [cartao :- PosInt]
   (fn [compra] (= (get compra :cartao 0) cartao)))
 
-(defn detalhar-compras-do-cartao
+(s/defn detalhar-compras-do-cartao :- RelatorioDeCompra
   "Detalhar as compras do cartão"
-  [cartao]
+  [cartao :- PosInt]
   (->> (todas-as-compras)
        (filter (existe-compra? cartao))
        (todas-as-compras-realizadas cartao)))
 
 
-(defn compra-estah-no-mes-ano-de-referencia?
-  [mes ano]
+
+
+
+
+
+
+
+(s/defn compra-estah-no-mes-ano-de-referencia?
+  [mes :- PosInt ano :- PosInt]
   (fn [compra] (and (= (obtem-mes (get compra :data 0)) mes)
                     (= (obtem-ano (get compra :data 0)) ano))))
 
@@ -135,11 +142,11 @@
 
 (defn todas-compras-por-filtro
   [cartao filtro compras]
-  {:cliente  (localiza-cliente cartao)
+  {:cliente  (get (into [] (localiza-cliente cartao)) 0)
    :filtro   filtro
-   :detalhar (if (string? filtro)
-               (detalhar-todas-as-compras-por-estabelecimento filtro compras)
-               (detalhar-todas-as-compras-por-valor filtro compras))})
+   :detalhar (into [] (if (string? filtro)
+                        (detalhar-todas-as-compras-por-estabelecimento filtro compras)
+                        (detalhar-todas-as-compras-por-valor filtro compras)))})
 
 (defn busca-compras-por-filtro
   [cartao filtro]
@@ -147,10 +154,15 @@
        (filter (existe-compra? cartao))
        (todas-compras-por-filtro cartao filtro)))
 
+
+
 (def Cartao s/Num)
 (def Filtro (s/if pos-int? s/Num s/Str))
 
-(s/defn busca-de-compras-valor-ou-estabelecimento
+(def Detalhar [{:data s/Any, :valor ValorFinanceiro, :estabelecimento s/Str, :categoria s/Str}])
+(def BuscaPorFiltro {:cliente s/Num, :filtro Filtro, :detalhar Detalhar})
+
+(s/defn busca-de-compras-valor-ou-estabelecimento :- BuscaPorFiltro
   "Encontrar as compras realizadas por filtro de estabelecimento ou valor (maior ou igual)"
   [cartao :- Cartao, filtro :- Filtro]
   (busca-compras-por-filtro cartao filtro))
