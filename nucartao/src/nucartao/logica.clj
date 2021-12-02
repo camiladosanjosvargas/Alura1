@@ -13,6 +13,7 @@
 
 (def PosInt (s/pred pos-int? 'inteiro-positivo))
 (defn maior-ou-igual-a-zero? [x] (>= x 0))
+
 (def ValorFinanceiro (s/constrained s/Num maior-ou-igual-a-zero?))
 
 (def Detalhes {(s/optional-key :data) s/Any, :valor ValorFinanceiro, :estabelecimento s/Str, :categoria s/Str})
@@ -84,13 +85,6 @@
   (->> (todas-as-compras)
        (filter (existe-compra? cartao))
        (todas-as-compras-realizadas cartao)))
-
-
-
-
-
-
-
 
 
 (s/defn compra-estah-no-mes-ano-de-referencia?
