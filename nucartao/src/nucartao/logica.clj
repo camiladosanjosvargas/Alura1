@@ -59,8 +59,7 @@
 
 (s/defn obtem-cliente
   [cartao :- PosInt]
-  (->> (cartoes)
-       (filter (cartao-do-cliente? cartao))))
+  (filter (cartao-do-cliente? cartao) (cartoes)))
 
 (s/defn localiza-cliente
   [cartao :- PosInt]
@@ -73,7 +72,7 @@
      :quantidade-total-de-compras   (count compras)
      :total-de-gastos               (total-dos-gastos detalhes)
      :total-de-gastos-por-categoria (todas-as-compras-por-categoria detalhes)
-     :compras-realizadas            detalhes}))
+     :compras-realizadas            (into [] detalhes)}))
 
 (s/defn existe-compra?
   [cartao :- PosInt]
