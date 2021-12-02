@@ -13,10 +13,18 @@
     (is (not (maior-ou-igual-a-zero? -1)))))
 
 (deftest detalhes-de-compras-teste
-  (testing "Formato de retorno válido da funcao detalhes-de-compras"
-    (is (= [{:data "2020 10 02", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}]
-           (detalhes-de-compras [{:id 1, :cartao 10, :detalhes {:data "2020 10 02", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}}]))))
+  (testing "Formato de retorno válido"
+    (is (= [{:data "2020 10 02", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"},
+            {:data "2020 10 02", :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"},
+            {:data "2020 10 02", :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}]
+           (detalhes-de-compras [{:id 1, :cartao 10, :detalhes {:data "2020 10 02", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}},
+                                 {:id 2, :cartao 50, :detalhes {:data "2020 10 02", :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"}},
+                                 {:id 3, :cartao 10, :detalhes {:data "2020 10 02", :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}}]))))
 
-  (testing "Formato de retorno inválido da funcao detalhes-de-compras"
-    (is (not (= [:detalhes {:data "2020 10 02", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}]
-                (detalhes-de-compras [{:id 1, :cartao 10, :detalhes {:data "2020 10 02", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}}]))))))
+  (testing "Formato de retorno inválido"
+    (is (not (= [:detalhes {:data "2020 10 02", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"},
+                 :detalhes {:data "2020 10 02", :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"},
+                 :detalhes {:data "2020 10 02", :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}]
+                (detalhes-de-compras [{:id 1, :cartao 10, :detalhes {:data "2020 10 02", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}},
+                                      {:id 2, :cartao 50, :detalhes {:data "2020 10 02", :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"}},
+                                      {:id 3, :cartao 10, :detalhes {:data "2020 10 02", :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}}]))))))
