@@ -16,6 +16,3 @@
 
 (println "\n\n\nBusca inválida")
 (pprint (n.l/busca-de-compras-valor-ou-estabelecimento 10 -1))
-
-
-

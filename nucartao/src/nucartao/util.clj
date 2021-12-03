@@ -7,10 +7,6 @@
   ([]
    (t/local-date)))
 
-(defn formata-data
-  [data]
-  (t/format data))
-
 (defn obtem-mes
   [data]
   (t/as data :month-of-year))

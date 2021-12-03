@@ -26,3 +26,4 @@
    {:id 7, :cartao 30, :detalhes {:data (data 2020 12 02), :valor 30, :estabelecimento "SalaoABC", :categoria "Beleza"}},
    {:id 8, :cartao 30, :detalhes {:data (data 2020 12 31), :valor 40, :estabelecimento "EscolaABC", :categoria "Educação"}},
    {:id 9, :cartao 40, :detalhes {:data (data 2020 12 31), :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}}])
+
