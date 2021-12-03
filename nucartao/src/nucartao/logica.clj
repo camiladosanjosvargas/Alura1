@@ -5,6 +5,9 @@
             [nucartao.db :as n.db]
             [schema.core :as s]))
 
+;TODO: valor acima do esperado, retorna detalhes vazio
+;TODO: criar teste para tratamento de exception quando o cartao nao existe
+;TODO: mover para o modelo.clj
 (def todas-as-compras n.db/todas-as-compras)
 (def formata-com-duas-casas-decimais n.u/formata-com-duas-casas-decimais)
 (def obtem-mes n.u/obtem-mes)
@@ -47,10 +50,11 @@
   [elementos]
   (formata-com-duas-casas-decimais (reduce + (map :valor elementos))))
 
-(def mapaDestruturado [s/Str [Detalhes]])
+;TODO: mover para modelo.clj
+(def mapaDesestruturado [s/Str [Detalhes]])
 
 (s/defn todos-os-gastos :- TotalGastosPorCategoria
-  [[chave valor]] :- mapaDestruturado
+  [[chave valor]] :- mapaDesestruturado
   {chave (total-dos-gastos valor)})
 
 (s/defn todas-as-compras-por-categoria :- [TotalGastosPorCategoria]
@@ -93,7 +97,6 @@
        (filter (existe-compra? cartao))
        (todas-as-compras-realizadas cartao)))
 
-
 (s/defn compra-estah-no-mes-ano-de-referencia?
   [mes :- PosInt ano :- PosInt]
   (fn [compra] (and (= (obtem-mes (get compra :data 0)) mes)
@@ -121,6 +124,7 @@
        (filter (existe-compra? cartao))
        (detalhar-faturas-por-mes cartao mes ano)))
 
+;TODO: mover para modelo.clj
 (def PossiveisCondicoes (s/enum < > <= >=))
 
 (s/defn compra-realizada-maior-ou-igual-ao-valor-especificado?
@@ -157,6 +161,7 @@
        (filter (existe-compra? cartao))
        (todas-compras-por-filtro cartao filtro)))
 
+;TODO: mover para modelo.clj
 (def Detalhar [{:data s/Any, :valor ValorFinanceiro, :estabelecimento s/Str, :categoria s/Str}])
 (def BuscaPorFiltro {:cliente s/Num, :filtro Filtro, :detalhar Detalhar})
 
