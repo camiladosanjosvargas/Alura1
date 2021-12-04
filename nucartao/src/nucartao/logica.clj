@@ -3,9 +3,9 @@
   (:require [nucartao.util :as n.u]
             [nucartao.db :as n.db]
             [nucartao.modelo :as n.md]
-            [schema.core :as s]))
+            [schema.core :as s]
+            [java-time :as t]))
 
-;TODO: criar tratamento de exception quando o cartao nao existe
 (def todas-as-compras n.db/todas-as-compras)
 (def formata-com-duas-casas-decimais n.u/formata-com-duas-casas-decimais)
 (def obtem-mes n.u/obtem-mes)
@@ -18,7 +18,7 @@
 
 (defn- adiciona-id-data
   [compra]
-  (assoc-in (assoc compra :id (gera-id)) [:detalhes :data] (n.u/data)))
+  (assoc-in (assoc compra :id (gera-id)) [:detalhes :data] (t/format "yyyy-MM-dd" (n.u/data))))
 
 (s/defn nova-compra-detalhada :- [n.md/CompraDetalhada]
   [compra :- n.md/CompraDetalhada]
@@ -89,16 +89,18 @@
   [mes :- n.md/PosInt ano :- n.md/PosInt compras :- [n.md/CompraDetalhada]]
   (->> compras
        (detalhes-de-compras)
-       (filter (compra-estah-no-mes-ano-de-referencia? mes ano))))
+       (filter (compra-estah-no-mes-ano-de-referencia? mes ano))
+       ))
 
 (s/defn detalhar-faturas-por-mes
   [cartao :- n.md/PosInt mes :- n.md/PosInt ano :- n.md/PosInt compras :- [n.md/CompraDetalhada]]
   (let [compras-mes-ano-referencia (todas-as-compras-no-mes-ano-de-referencia mes ano compras)]
-    {:cliente            (localiza-cliente cartao)
-     :mes-de-referencia  mes
-     :ano-de-referencia  ano
-     :total-da-fatura    (total-dos-gastos compras-mes-ano-referencia)
-     :compras-realizadas compras-mes-ano-referencia}))
+    {:cliente           (localiza-cliente cartao)
+     :mes-de-referencia mes
+     :ano-de-referencia ano
+     ;:total-da-fatura    (total-dos-gastos compras-mes-ano-referencia)
+     :compras-realizadas compras-mes-ano-referencia
+     }))
 
 (s/defn detalhar-fatura-do-cartao-por-mes-e-ano
   "Detalhar fatura do cartão no mês e ano de referência"
@@ -137,10 +139,9 @@
 
 (s/defn busca-compras-por-filtro
   [cartao :- n.md/PosInt filtro :- n.md/Filtro]
-  (->> (todas-as-compras)
-       (filter (existe-compra? cartao))
-       (todas-compras-por-filtro cartao filtro)))
+  (todas-compras-por-filtro cartao filtro (filter (existe-compra? cartao) (todas-as-compras))))
 
+;TODO: é possível tratar a mensagem de uma exception lançada pelo schema?
 (s/defn busca-de-compras-valor-ou-estabelecimento :- n.md/BuscaPorFiltro
   "Encontrar as compras realizadas por filtro de estabelecimento ou valor (maior ou igual)"
   [cartao :- n.md/PosInt, filtro :- n.md/Filtro]
