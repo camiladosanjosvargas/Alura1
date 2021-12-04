@@ -98,7 +98,7 @@
     {:cliente           (localiza-cliente cartao)
      :mes-de-referencia mes
      :ano-de-referencia ano
-     ;:total-da-fatura    (total-dos-gastos compras-mes-ano-referencia)
+     :total-da-fatura    (total-dos-gastos compras-mes-ano-referencia)
      :compras-realizadas compras-mes-ano-referencia
      }))
 
