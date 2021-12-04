@@ -89,8 +89,7 @@
   [mes :- n.md/PosInt ano :- n.md/PosInt compras :- [n.md/CompraDetalhada]]
   (->> compras
        (detalhes-de-compras)
-       (filter (compra-estah-no-mes-ano-de-referencia? mes ano))
-       ))
+       (filter (compra-estah-no-mes-ano-de-referencia? mes ano))))
 
 (s/defn detalhar-faturas-por-mes
   [cartao :- n.md/PosInt mes :- n.md/PosInt ano :- n.md/PosInt compras :- [n.md/CompraDetalhada]]
@@ -99,8 +98,7 @@
      :mes-de-referencia mes
      :ano-de-referencia ano
      :total-da-fatura    (total-dos-gastos compras-mes-ano-referencia)
-     :compras-realizadas compras-mes-ano-referencia
-     }))
+     :compras-realizadas compras-mes-ano-referencia}))
 
 (s/defn detalhar-fatura-do-cartao-por-mes-e-ano
   "Detalhar fatura do cartão no mês e ano de referência"

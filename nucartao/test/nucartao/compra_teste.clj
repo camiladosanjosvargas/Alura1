@@ -60,7 +60,7 @@
             {:id 10, :cartao 10, :detalhes {:data (t/format "yyyy-MM-dd" (n.u/data)), :valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}}]
            (nova-compra-detalhada {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}})))))
 
-(deftest detalhar-compras-do-cartao-testeÒ
+(deftest detalhar-compras-do-cartao-teste
   (testing "Formato de retorno válido - teste da funcao que detalha todas as compras do cartao"
     (is (= {:cliente                       1,
             :quantidade-total-de-compras   2,
@@ -86,5 +86,6 @@
   (testing "Cartao nao existeœ"
     (is (thrown? clojure.lang.ExceptionInfo
                  (detalhar-compras-do-cartao 60)))))
+
 
 
