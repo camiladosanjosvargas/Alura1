@@ -1,6 +1,7 @@
 (ns nucartao.compra-teste
   (:require [clojure.test :refer :all]
             [nucartao.logica :refer :all]
+            [nucartao.modelo :refer :all]
             [nucartao.util :as n.u]))
 
 (def data n.u/data)
@@ -82,11 +83,8 @@
                  :total-de-gastos-por-categoria [{"Educação" "R$ 80.00"} {"Saúde" "R$ 5.00"}]}
                 (detalhar-compras-do-cartao 10)))))
 
-  (testing "Cartao nao existe"
-    (is (not (= {:cliente                       1,
-                 :quantidade-total-de-compras   2,
-                 :total-de-gastos               "R$ 85.00",
-                 :total-de-gastos-por-categoria [{"Educação" "R$ 80.00"} {"Saúde" "R$ 5.00"}]}
-                (detalhar-compras-do-cartao 10))))))
+  (testing "Cartao nao existeœ"
+    (is (thrown? clojure.lang.ExceptionInfo
+              (detalhar-compras-do-cartao 60)))))
 
 
