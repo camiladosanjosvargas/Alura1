@@ -15,4 +15,4 @@
 (pprint (n.l/busca-de-compras-valor-ou-estabelecimento 10 80))
 
 (println "\n\n\nBusca inválida")
-(pprint (n.l/busca-de-compras-valor-ou-estabelecimento 10 -1))
+(pprint (n.l/busca-de-compras-valor-ou-estabelecimento-com-tratamento 10 -1))

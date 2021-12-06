@@ -31,9 +31,9 @@
 ;chamada para adicionar uma nova compra validando os parametros de entrada
 (pprint (nova-compra-detalhada {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}}))
 
-(defn- total-dos-gastos
-  [elementos]
-  (formata-com-duas-casas-decimais (reduce + (map :valor elementos))))
+(s/defn total-dos-gastos :- s/Str
+  [elementos :- [n.md/Detalhes]]
+  (formata-com-duas-casas-decimais (reduce + (mapv :valor elementos))))
 
 (s/defn todos-os-gastos :- n.md/TotalGastosPorCategoria
   [[chave valor]] :- n.md/mapaDesestruturado
@@ -55,7 +55,6 @@
   [cartao :- n.md/PosInt]
   (filter (cartao-do-cliente? cartao) (cartoes)))
 
-;TODO: é uma boa prática ficar transformando em vetor? Como validar o retorno quando é uma sequencia?
 (s/defn localiza-cliente :- [n.md/PosInt]
   [cartao :- n.md/PosInt]
   (into [] (map :cliente (obtem-cliente cartao))))
@@ -111,7 +110,7 @@
   [filtro :- n.md/Filtro condicao :- n.md/PossiveisCondicoes]
   (fn [compra] (condicao (get compra :valor 0) filtro)))
 
-(s/defn detalhar-todas-as-compras-por-valor
+(s/defn detalhar-todas-as-compras-por-valor :- n.md/Detalhar
   [filtro :- n.md/Filtro compras :- [n.md/CompraDetalhada]]
   (->> compras
        (detalhes-de-compras)
@@ -127,7 +126,7 @@
        (detalhes-de-compras)
        (filter (compra-realizada-no-estabelecimento-especificado? filtro))))
 
-(s/defn todas-compras-por-filtro
+(s/defn todas-compras-por-filtro :- n.md/BuscaPorFiltro
   [cartao :- n.md/PosInt filtro :- n.md/Filtro compras :- [n.md/CompraDetalhada]]
   {:cliente  (get (into [] (localiza-cliente cartao)) 0)
    :filtro   filtro
@@ -139,10 +138,16 @@
   [cartao :- n.md/PosInt filtro :- n.md/Filtro]
   (todas-compras-por-filtro cartao filtro (filter (existe-compra? cartao) (todas-as-compras))))
 
-;TODO: é possível tratar a mensagem de uma exception lançada pelo schema?
 (s/defn busca-de-compras-valor-ou-estabelecimento :- n.md/BuscaPorFiltro
   "Encontrar as compras realizadas por filtro de estabelecimento ou valor (maior ou igual)"
   [cartao :- n.md/PosInt, filtro :- n.md/Filtro]
   (busca-compras-por-filtro cartao filtro))
 
+(defn busca-de-compras-valor-ou-estabelecimento-com-tratamento
+  "Encontrar as compras realizadas por filtro de estabelecimento ou valor (maior ou igual)"
+  [cartao, filtro]
+  (try
+    (busca-de-compras-valor-ou-estabelecimento cartao filtro)
+    (catch clojure.lang.ExceptionInfo e
+      (println) "Filtro inválido, informe ou um valor ou um estabelecimento!")))
 
