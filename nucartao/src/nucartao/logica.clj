@@ -3,8 +3,7 @@
   (:require [nucartao.util :as n.u]
             [nucartao.db :as n.db]
             [nucartao.modelo :as n.md]
-            [schema.core :as s]
-            [java-time :as t]))
+            [schema.core :as s]))
 
 (def todas-as-compras n.db/todas-as-compras)
 (def formata-com-duas-casas-decimais n.u/formata-com-duas-casas-decimais)
@@ -18,7 +17,7 @@
 
 (defn- adiciona-id-data
   [compra]
-  (assoc-in (assoc compra :id (gera-id)) [:detalhes :data] (t/format "yyyy-MM-dd" (n.u/data))))
+  (assoc-in (assoc compra :id (gera-id)) [:detalhes :data] (n.u/data)))
 
 (s/defn nova-compra-detalhada :- [n.md/CompraDetalhada]
   [compra :- n.md/CompraDetalhada]
@@ -29,11 +28,11 @@
   (conj (todas-as-compras) (adiciona-id-data compra)))
 
 ;chamada para adicionar uma nova compra validando os parametros de entrada
-(pprint (nova-compra-detalhada {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}}))
+;(pprint (nova-compra-detalhada {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}}))
 
 (s/defn total-dos-gastos :- s/Str
   [elementos :- [n.md/Detalhes]]
-  (formata-com-duas-casas-decimais (reduce + (mapv :valor elementos))))
+  (formata-com-duas-casas-decimais (reduce + (map :valor elementos))))
 
 (s/defn todos-os-gastos :- n.md/TotalGastosPorCategoria
   [[chave valor]] :- n.md/mapaDesestruturado
@@ -43,8 +42,8 @@
   [elementos :- [n.md/Detalhes]]
   (into [] (map todos-os-gastos (group-by :categoria elementos))))
 
-(s/defn detalhes-de-compras :- [n.md/Detalhes]
-  [elementos :- [n.md/CompraDetalhada]]
+(s/defn detalhes-de-compras
+  [elementos]
   (map :detalhes elementos))
 
 (s/defn cartao-do-cliente?
@@ -60,10 +59,10 @@
   (into [] (map :cliente (obtem-cliente cartao))))
 
 (s/defn todas-as-compras-realizadas :- n.md/RelatorioDeCompra
-  [cartao :- n.md/PosInt compras :- [n.md/CompraDetalhada]]
+  [cartao :- n.md/PosInt compras] :- [n.md/CompraDetalhada]
   (let [detalhes (detalhes-de-compras compras)]
-    {:cliente                       (get (localiza-cliente cartao) 0)
-     :quantidade-total-de-compras   (count compras)
+    {:cliente (get (localiza-cliente cartao) 0)
+     :quantidade-total-de-compras    (count compras)
      :total-de-gastos               (total-dos-gastos detalhes)
      :total-de-gastos-por-categoria (todas-as-compras-por-categoria detalhes)
      :compras-realizadas            (into [] detalhes)}))
@@ -79,6 +78,8 @@
        (filter (existe-compra? cartao))
        (todas-as-compras-realizadas cartao)))
 
+;(detalhar-compras-do-cartao 10)
+
 (s/defn compra-estah-no-mes-ano-de-referencia?
   [mes :- n.md/PosInt ano :- n.md/PosInt]
   (fn [compra] (and (= (obtem-mes (get compra :data 0)) mes)
@@ -91,12 +92,12 @@
        (filter (compra-estah-no-mes-ano-de-referencia? mes ano))))
 
 (s/defn detalhar-faturas-por-mes
-  [cartao :- n.md/PosInt mes :- n.md/PosInt ano :- n.md/PosInt compras :- [n.md/CompraDetalhada]]
+  [cartao :- n.md/PosInt mes :- n.md/PosInt ano :- n.md/PosInt compras]
   (let [compras-mes-ano-referencia (todas-as-compras-no-mes-ano-de-referencia mes ano compras)]
-    {:cliente           (localiza-cliente cartao)
+    {:cliente (localiza-cliente cartao)
      :mes-de-referencia mes
      :ano-de-referencia ano
-     :total-da-fatura    (total-dos-gastos compras-mes-ano-referencia)
+     ;:total-da-fatura    (total-dos-gastos compras-mes-ano-referencia)
      :compras-realizadas compras-mes-ano-referencia}))
 
 (s/defn detalhar-fatura-do-cartao-por-mes-e-ano

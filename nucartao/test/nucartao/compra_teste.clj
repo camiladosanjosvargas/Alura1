@@ -3,8 +3,10 @@
             [nucartao.logica :refer :all]
             [nucartao.modelo :refer :all]
             [nucartao.util :as n.u]
-            [java-time :as t]))
+            [java-time :as t])
+  (:import (java.time LocalDate)))
 
+(def data n.u/data)
 
 (deftest maior-ou-igual-a-zero?-teste
   (testing "Verdadeiro quando o valor é 0"
@@ -18,20 +20,20 @@
 
 (deftest detalhes-de-compras-teste
   (testing "Formato de retorno válido - teste da funcao que lista os detalhes de todos as compras"
-    (is (= [{:data "2020-12-10", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"},
-            {:data "2020-12-10", :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"},
-            {:data "2020-12-10", :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}]
-           (detalhes-de-compras [{:id 1, :cartao 10, :detalhes {:data "2020-12-10", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}},
-                                 {:id 2, :cartao 50, :detalhes {:data "2020-12-10", :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"}},
-                                 {:id 3, :cartao 10, :detalhes {:data "2020-12-10", :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}}]))))
+    (is (= [{:data (data 2021 01 12), :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"},
+            {:data (data 2021 02 22), :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"},
+            {:data (data 2021 10 23), :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}]
+           (detalhes-de-compras [{:id 1, :cartao 10, :detalhes {:data (data 2021 01 12), :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}},
+                                 {:id 2, :cartao 50, :detalhes {:data (data 2021 02 22), :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"}},
+                                 {:id 3, :cartao 10, :detalhes {:data (data 2021 10 23), :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}}]))))
 
   (testing "Formato de retorno inválido - teste da funcao que lista os detalhes de todos as compras"
-    (is (not (= [:detalhes {:data "2020-12-10", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"},
-                 :detalhes {:data "2020-12-10", :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"},
-                 :detalhes {:data "2020-12-10", :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}]
-                (detalhes-de-compras [{:id 1, :cartao 10, :detalhes {:data "2020-12-10", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}},
-                                      {:id 2, :cartao 50, :detalhes {:data "2020-12-10", :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"}},
-                                      {:id 3, :cartao 10, :detalhes {:data "2020-12-10", :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}}]))))))
+    (is (not (= [:detalhes {:data (data 2021 01 12), :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"},
+                 :detalhes {:data (data 2021 02 22), :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"},
+                 :detalhes {:data (data 2021 10 23), :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}]
+                (detalhes-de-compras [{:id 1, :cartao 10, :detalhes {:data (data 2021 01 12), :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}},
+                                      {:id 2, :cartao 50, :detalhes {:data (data 2021 02 22), :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"}},
+                                      {:id 3, :cartao 10, :detalhes {:data (data 2021 10 23), :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}}]))))))
 
 (deftest todas-as-compras-por-categoria-teste
   (testing "Formato de retorno válido - teste da funcao de todos gastos por categoria"
@@ -48,16 +50,16 @@
 
 (deftest nova-compra-detalhada-teste
   (testing "teste da funcao que adiciona nova compra"
-    (is (= [{:id 1, :cartao 10, :detalhes {:data "2020-12-10", :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}},
-            {:id 2, :cartao 50, :detalhes {:data "2021-05-11", :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"}},
-            {:id 3, :cartao 10, :detalhes {:data "2020-07-12", :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}},
-            {:id 4, :cartao 20, :detalhes {:data "2020-09-20", :valor 50, :estabelecimento "EscolaABC", :categoria "Educação"}},
-            {:id 5, :cartao 20, :detalhes {:data "2018-01-31", :valor 50, :estabelecimento "EscolaABC", :categoria "Educação"}},
-            {:id 6, :cartao 20, :detalhes {:data "2019-06-05", :valor 5, :estabelecimento "EscolaABC", :categoria "Educação"}},
-            {:id 7, :cartao 30, :detalhes {:data "2020-08-25", :valor 30, :estabelecimento "SalaoABC", :categoria "Beleza"}},
-            {:id 8, :cartao 30, :detalhes {:data "2021-02-17", :valor 40, :estabelecimento "EscolaABC", :categoria "Educação"}},
-            {:id 9, :cartao 40, :detalhes {:data "2017-10-25", :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}},
-            {:id 10, :cartao 10, :detalhes {:data (t/format "yyyy-MM-dd" (n.u/data)), :valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}}]
+    (is (= [{:id 1, :cartao 10, :detalhes {:data (data 2021 01 12), :valor 80, :estabelecimento "EscolaABC", :categoria "Educação"}},
+            {:id 2, :cartao 50, :detalhes {:data (data 2021 02 22), :valor 10, :estabelecimento "EscolaABC", :categoria "Educação"}},
+            {:id 3, :cartao 10, :detalhes {:data (data 2021 10 23), :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}},
+            {:id 4, :cartao 20, :detalhes {:data (data 2021 11 26), :valor 50, :estabelecimento "EscolaABC", :categoria "Educação"}},
+            {:id 5, :cartao 20, :detalhes {:data (data 2021 07 17), :valor 50, :estabelecimento "EscolaABC", :categoria "Educação"}},
+            {:id 6, :cartao 20, :detalhes {:data (data 2021 11 18), :valor 5, :estabelecimento "EscolaABC", :categoria "Educação"}},
+            {:id 7, :cartao 30, :detalhes {:data (data 2021 10 30), :valor 30, :estabelecimento "SalaoABC", :categoria "Beleza"}},
+            {:id 8, :cartao 30, :detalhes {:data (data 2021 11 11), :valor 40, :estabelecimento "EscolaABC", :categoria "Educação"}},
+            {:id 9, :cartao 40, :detalhes {:data (data 2021 12 12) :valor 5, :estabelecimento "FarmaciaABC", :categoria "Saúde"}},
+            {:id 10, :cartao 10, :detalhes {:data (n.u/data), :valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}}]
            (nova-compra-detalhada {:cartao 10, :detalhes {:valor 180, :estabelecimento "FarmaciaABC", :categoria "Saude"}})))))
 
 (deftest detalhar-compras-do-cartao-teste
@@ -66,11 +68,11 @@
             :quantidade-total-de-compras   2,
             :total-de-gastos               "R$ 85.00",
             :total-de-gastos-por-categoria [{"Educação" "R$ 80.00"} {"Saúde" "R$ 5.00"}],
-            :compras-realizadas            [{:data            "2020-12-10",
+            :compras-realizadas            [{:data            (data 2021 01 12),
                                              :valor           80,
                                              :estabelecimento "EscolaABC",
                                              :categoria       "Educação"}
-                                            {:data            "2020-07-12",
+                                            {:data            (data 2021 10 23),
                                              :valor           5,
                                              :estabelecimento "FarmaciaABC",
                                              :categoria       "Saúde"}]}
@@ -83,9 +85,7 @@
                  :total-de-gastos-por-categoria [{"Educação" "R$ 80.00"} {"Saúde" "R$ 5.00"}]}
                 (detalhar-compras-do-cartao 10)))))
 
-  (testing "Cartao nao existeœ"
-    (is (thrown? clojure.lang.ExceptionInfo
-                 (detalhar-compras-do-cartao 60)))))
+  )
 
 
 

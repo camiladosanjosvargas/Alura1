@@ -1,4 +1,5 @@
 (ns nucartao.modelo
+  (:import java.time.LocalDate)
   (:require [schema.core :as s]))
 
 (def PosInt (s/pred pos-int? 'inteiro-positivo))
@@ -6,12 +7,12 @@
 (defn maior-ou-igual-a-zero? [x] (>= x 0))
 (def ValorFinanceiro (s/constrained s/Num maior-ou-igual-a-zero?))
 
-(def ComprasRealizadas [{:data            s/Str
+(def ComprasRealizadas [{:data            LocalDate
                          :valor           ValorFinanceiro,
                          :estabelecimento s/Str,
                          :categoria       s/Str}])
 
-(def Detalhes {(s/optional-key :data) s/Str,
+(def Detalhes {(s/optional-key :data) LocalDate,
                :valor                 ValorFinanceiro,
                :estabelecimento       s/Str,
                :categoria             s/Str})
@@ -22,7 +23,7 @@
 
 (def Filtro (s/if pos-int? s/Num s/Str))
 
-(def ComprasRealizadas [{:data            s/Str
+(def ComprasRealizadas [{:data            LocalDate,
                          :valor           ValorFinanceiro,
                          :estabelecimento s/Str,
                          :categoria       s/Str}])
@@ -41,7 +42,7 @@
 
 (def Bool (or true false))
 
-(def Detalhar [{:data            s/Any,
+(def Detalhar [{:data            LocalDate,
                 :valor           ValorFinanceiro,
                 :estabelecimento s/Str,
                 :categoria       s/Str}])
@@ -54,6 +55,6 @@
               :cliente  PosInt,
               :numero   PosInt,
               :CVV      PosInt,
-              :validade s/Str,
+              :validade LocalDate,
               :limite   ValorFinanceiro})
 
